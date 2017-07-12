@@ -2,14 +2,14 @@
 
 DESCRIPTION = "Afero binary files"
 SECTION = "examples"
-DEPENDS = "libevent json-c zlib openssl curl af-conn af-ipc af-util attrd"
+DEPENDS = "libevent json-c zlib openssl curl af-conn af-ipc af-util attrd otamgr"
 LICENSE = "CLOSED"
 LIC_FILES_CHKSUM = ""
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 SRC_URI = "git://git@github.com/AferoCE/am335x-binaries;protocol=ssh"
-SRCREV = "ee6c5cc49475e8b0266e38723e751a58a4171290"
+SRCREV = "861978168e25052482714ee5cc1cdca805aaf82f"
 
 S = "${WORKDIR}/git"
 
