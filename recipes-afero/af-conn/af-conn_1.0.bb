@@ -10,7 +10,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 inherit autotools
 SRC_URI = "git://git@github.com/AferoCE/af-conn;protocol=ssh"
-SRCREV = "e5fad623f1df2ff0d472d7a0e487dfa77c4e341d"
+SRCREV = "bdbb7242f14b5eff2cf3ed6ca54c214eb49e10df"
 
 S = "${WORKDIR}/git/pkg"
 
@@ -27,6 +27,7 @@ SRC_URI += " file://wifi_watcher"
 SRC_URI += " file://afero_whitelist.dev"
 SRC_URI += " file://afero_whitelist.prod"
 SRC_URI += " file://create_afero_whitelist.sh"
+SRC_URI += " file://afero_net_cap"
 
 # install the files into the destination directory so it can be packaged
 # correctly
@@ -48,4 +49,5 @@ do_install_append() {
     install -Dm 755 ${WORKDIR}/create_afero_whitelist.sh ${D}${sysconfdir}/config/
     install -Dm 755 ${WORKDIR}/firewall.user ${D}${sysconfdir}/config/
     install -Dm 755 ${WORKDIR}/wifi_watcher ${D}${bindir}
+    install -Dm 755 ${WORKDIR}/afero_net_cap ${D}${bindir}
 }

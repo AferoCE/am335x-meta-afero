@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = ""
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 SRC_URI = "git://git@github.com/AferoCE/am335x-binaries;protocol=ssh"
-SRCREV = "d53d2f0ba332e8ad80740ac448c20239c64ee9cd"
+SRCREV = "582f8b01a151f78e9683d15126a9710cf3d7b58b"
 
 S = "${WORKDIR}/git"
 

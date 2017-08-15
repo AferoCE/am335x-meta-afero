@@ -10,7 +10,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 inherit autotools
 SRC_URI = "git://git@github.com/AferoCE/attrd;protocol=ssh"
-SRCREV = "0a400fef4a6481fd1531116a8a4bdac9c8a21977"
+SRCREV = "2358431192043297b66b7b6675eb5077b71a4d97"
 
 S = "${WORKDIR}/git/pkg"
 
