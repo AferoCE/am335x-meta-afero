@@ -96,11 +96,11 @@ cleanlogs
 
 if [ ${PUSH_LOG} -ne 0 ] ; then
     # Get the device ID
-    local acctid=`/bin/cat /tmp/accountid`
+    local acctid=`/bin/cat /tmp/afero_accountid`
     local res1=$?
     local devid=`/usr/bin/ipc_send IPC.AFSEC -u8 0 | /usr/bin/awk '{ print $2 }'`
     local res2=$?
-    local token=`/bin/cat /tmp/token`
+    local token=`/bin/cat /tmp/afero_token`
     local res3=$?
 
     if [ ${res1} -eq 0 -a ${res2} -eq 0 -a ${res3} -eq 0 ] ; then

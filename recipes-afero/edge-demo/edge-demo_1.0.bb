@@ -1,16 +1,16 @@
 # Copyright (C) 2017 Afero, Inc. All rights reserved
 
-DESCRIPTION = "Afero OTA Manager Sample Code"
+DESCRIPTION = "Afero Edge Device Demo"
 SECTION = "examples"
-DEPENDS = "libevent af-util af-ipc attrd"
+DEPENDS = "libevent af-util af-ipc afero-binaries"
 LICENSE = "CLOSED"
 LIC_FILES_CHKSUM = ""
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 inherit autotools
-SRC_URI = "git://git@github.com/AferoCE/otamgr;protocol=ssh"
-SRCREV = "638e35d76ffce90d19babd858abfa237c0f4ebb3"
+SRC_URI = "git://git@github.com/AferoCE/edge-demo;protocol=ssh"
+SRCREV = "061b6235f5273574ad0cb8213b4390505bc1e3fe"
 
 S = "${WORKDIR}/git/pkg"
 

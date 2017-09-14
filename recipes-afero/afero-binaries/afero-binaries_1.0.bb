@@ -9,15 +9,23 @@ LIC_FILES_CHKSUM = ""
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 SRC_URI = "git://git@github.com/AferoCE/am335x-binaries;protocol=ssh"
-SRCREV = "582f8b01a151f78e9683d15126a9710cf3d7b58b"
+SRCREV = "e40095b9c17f5601b4278aadbb1e805a1061a5f8"
 
 S = "${WORKDIR}/git"
 
 do_install() {
     install -d ${D}${bindir}
     install -d ${D}${sysconfdir}
-    install -Dm 755 ${S}/${BUILD_TARGET}/usr/bin/afsecd ${D}${bindir}
-    install -Dm 755 ${S}/${BUILD_TARGET}/usr/bin/hubby ${D}${bindir}
-    install -Dm 755 ${S}/${BUILD_TARGET}/usr/bin/provision ${D}${bindir}
-    install -Dm 644 ${S}/${BUILD_TARGET}/etc/hub.profile ${D}${sysconfdir}
+    install -d ${D}${libdir}
+    install -d ${D}${includedir}
+    install -Dm 755 ${S}/${BUILD_TARGET}${bindir}/afsecd ${D}${bindir}
+    install -Dm 755 ${S}/${BUILD_TARGET}${bindir}/hubby ${D}${bindir}
+    install -Dm 755 ${S}/${BUILD_TARGET}${bindir}/provision ${D}${bindir}
+    install -Dm 644 ${S}/${BUILD_TARGET}${sysconfdir}/hub.profile ${D}${sysconfdir}
+    install -Dm 644 ${S}/${BUILD_TARGET}${libdir}/libaf_edge.so.0.0.0 ${D}${libdir}
+    ln -s libaf_edge.so.0.0.0 ${D}${libdir}/libaf_edge.so
+    ln -s libaf_edge.so.0.0.0 ${D}${libdir}/libaf_edge.so.0
+    install -Dm 644 ${S}/${BUILD_TARGET}${includedir}/aflib.h ${D}${includedir}
 }
+
+FILES_${PN} += " ${libdir}/libaf_edge.so ${libdir}/libaf_edge.so.0"
