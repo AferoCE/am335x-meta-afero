@@ -30,6 +30,7 @@ SRC_URI += " file://create_afero_whitelist.sh"
 SRC_URI += " file://afero_net_cap"
 SRC_URI += " file://afero_get_netif_names"
 SRC_URI += " file://afero_netif_names"
+SRC_URI += " file://wifi_event.sh"
 
 # install the files into the destination directory so it can be packaged
 # correctly
@@ -55,6 +56,7 @@ do_install_append() {
     install -Dm 755 ${WORKDIR}/afero_net_cap ${D}${bindir}
     install -Dm 644 ${WORKDIR}/afero_get_netif_names ${D}${base_libdir}
     install -Dm 644 ${WORKDIR}/afero_netif_names ${D}${base_libdir}
+    install -Dm 755 ${WORKDIR}/wifi_event.sh ${D}${bindir}
 }
 
 FILES_${PN} += " ${base_libdir}/afero_get_netif_names ${base_libdir}/afero_netif_names"

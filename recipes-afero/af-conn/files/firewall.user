@@ -12,11 +12,9 @@
 #
 # ref: original openwrt file: /etc/firewall.user
 
-WLAN_IFACE="wlan0"
-WAN_IFACE="wwan0"
-ETH_IFACE="eth0"
-BR_APNET_IFACE="br-apnet"
-WHITELIST_INTERFACES="$ETH_IFACE $WLAN_IFACE $WAN_IFACE"
+. /lib/afero_get_netif_names
+
+WHITELIST_INTERFACES="$ETH_INTERFACE_0 $WIFISTA_INTERFACE_0 $WAN_INTERFACE_0"
 
 IPTABLES="/usr/sbin/iptables"
 
@@ -104,7 +102,7 @@ $IPTABLES -A OUTPUT -o lo -j ACCEPT -m comment --comment "loopback itf"
 
 #############################################################################
 ##
-## ALLOW DNS connection on wwlan and wwan0 
+## ALLOW DNS connection on Wi-Fi STA and WAN
 ##       ICMP (request & reply)
 ##       NTP 
 ##       DHCP 
@@ -129,16 +127,16 @@ done
 # FORWARDING rules
 #
 # forwarding from extender to master (from bridge lan)
-$IPTABLES -A $AFERO_FORWARD_SERVICE -i $BR_APNET_IFACE -p udp --dport 53 -j ACCEPT \
+$IPTABLES -A $AFERO_FORWARD_SERVICE -i $BRIDGE_INTERFACE_0 -p udp --dport 53 -j ACCEPT \
 	-m comment --comment "DNS request"
 
 # accepting reply from master to extender (via the bridged interface)
-$IPTABLES -A $AFERO_FORWARD_SERVICE -o $BR_APNET_IFACE -p udp --sport 53 -j ACCEPT \
+$IPTABLES -A $AFERO_FORWARD_SERVICE -o $BRIDGE_INTERFACE_0 -p udp --sport 53 -j ACCEPT \
 	-m comment --comment "DNS reply"
 
 
 # ALLOW outgoing PING (ICMP)
-# for each ifname (wlan0,wwan0, eth0)
+# for each ifname (Wi-Fi STA, WAN, ethernet)
 #
 echo "  -- PING -- "
 for ifname in $WHITELIST_INTERFACES;
@@ -155,18 +153,18 @@ done
 # FORWARDING rules
 #
 # forwarding from extender to master (from bridged interface)
-$IPTABLES -A $AFERO_FORWARD_SERVICE -i $BR_APNET_IFACE -p icmp --icmp-type echo-request -j ACCEPT \
+$IPTABLES -A $AFERO_FORWARD_SERVICE -i $BRIDGE_INTERFACE_0 -p icmp --icmp-type echo-request -j ACCEPT \
 		-m comment --comment "icmp request rule"
 
 # accepting reply from master to extender (via the bridged interface)
-$IPTABLES -A $AFERO_FORWARD_SERVICE -o $BR_APNET_IFACE -p icmp --icmp-type echo-repl -j ACCEPT \
+$IPTABLES -A $AFERO_FORWARD_SERVICE -o $BRIDGE_INTERFACE_0 -p icmp --icmp-type echo-repl -j ACCEPT \
 		-m comment --comment "icmp reply rule"
 
 
 
 # ALLOW using NTP (as a client)
 #
-# for each ifname (wlan0,wwan0, eth0)
+# for each ifname (Wi-Fi STA, WAN, ethernet)
 #
 echo "  -- NTP -- "
 for ifname in $WHITELIST_INTERFACES;
@@ -182,11 +180,11 @@ done
 # FORWARDING rules
 #
 # forwarding from extender to master (from bridged interface)
-$IPTABLES -A $AFERO_FORWARD_SERVICE -i $BR_APNET_IFACE -p udp --dport 123 -j ACCEPT \
+$IPTABLES -A $AFERO_FORWARD_SERVICE -i $BRIDGE_INTERFACE_0 -p udp --dport 123 -j ACCEPT \
 		-m comment --comment "NTP"
 
 # accepting reply from master to extender (via the bridged interface)
-$IPTABLES -A $AFERO_FORWARD_SERVICE -o $BR_APNET_IFACE -p  udp --sport 123 \
+$IPTABLES -A $AFERO_FORWARD_SERVICE -o $BRIDGE_INTERFACE_0 -p  udp --sport 123 \
 		-m state --state ESTABLISHED,RELATED -j ACCEPT \
 		-m comment --comment "NTP"
 
@@ -194,7 +192,7 @@ $IPTABLES -A $AFERO_FORWARD_SERVICE -o $BR_APNET_IFACE -p  udp --sport 123 \
 # ALLOW using DHCP (renewal)
 #
 echo "  -- DHCP -- "
-# for each ifname (wlan0,wwan0, eth0)
+# for each ifname (Wi-Fi STA, WAN, ethernet)
 #
 for ifname in $WHITELIST_INTERFACES;
 do 
@@ -216,22 +214,22 @@ done
 ##
 ## On the Master Benter, the incoming traffic is from bridged interface
 ##
-$IPTABLES -A $AFERO_ALLOW_INCOMING_SERVICES -i $BR_APNET_IFACE -p udp --dport 67:68 \
+$IPTABLES -A $AFERO_ALLOW_INCOMING_SERVICES -i $BRIDGE_INTERFACE_0 -p udp --dport 67:68 \
         -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT \
         -m comment --comment "DHCP:Bento ext -> Bento AP"
 
 ## iptables -I AFERO_ALLOW_SERVICE_OUTPUT 1 -o br-apnet -p udp --sport 67:68 -j ACCEPT
-$IPTABLES -A $AFERO_ALLOW_OUTGOING_SERVICES -o $BR_APNET_IFACE -p udp --sport 67:68 \
+$IPTABLES -A $AFERO_ALLOW_OUTGOING_SERVICES -o $BRIDGE_INTERFACE_0 -p udp --sport 67:68 \
         -j ACCEPT -m comment --comment "DHCP:Bento AP -> Bento ext"
 
 
 #
 # FORWARD rules
 #
-$IPTABLES -A $AFERO_FORWARD_SERVICE -i $BR_APNET_IFACE -p udp --sport 67:68 -j ACCEPT \
+$IPTABLES -A $AFERO_FORWARD_SERVICE -i $BRIDGE_INTERFACE_0 -p udp --sport 67:68 -j ACCEPT \
 		-m comment --comment "DHCP rule"
 
-$IPTABLES  -A $AFERO_FORWARD_SERVICE -o $BR_APNET_IFACE -p udp --dport 67:68 \
+$IPTABLES  -A $AFERO_FORWARD_SERVICE -o $BRIDGE_INTERFACE_0 -p udp --dport 67:68 \
 		-m state --state ESTABLISHED,RELATED -j ACCEPT \
 		-m comment --comment "DHCP rule"
 
@@ -242,29 +240,29 @@ $IPTABLES  -A $AFERO_FORWARD_SERVICE -o $BR_APNET_IFACE -p udp --dport 67:68 \
 # incoming SSH connection (on wifi )
 echo "Specifiy the TEMPOARILY/DEV allowed services -- REMOVE BEFORE SHIP"
 echo "  -- SSH -- "
-$IPTABLES -A INPUT  -i wlan0 -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT \
+$IPTABLES -A INPUT  -i ${WIFISTA_INTERFACE_0} -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT \
     -m comment --comment "Allow SSH - REMOVE before ship"
-$IPTABLES -A OUTPUT -o wlan0 -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT \
+$IPTABLES -A OUTPUT -o ${WIFISTA_INTERFACE_0} -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT \
     -m comment --comment "Allow SSH - REMOVE before ship"
 
-####### eth0
-$IPTABLES -A INPUT  -i eth0 -p tcp --dport 22  -j ACCEPT \
+####### ethernet
+$IPTABLES -A INPUT  -i ${ETH_INTERFACE_0} -p tcp --dport 22  -j ACCEPT \
 			-m comment --comment "Allow SSH - REMOVE before ship"
-$IPTABLES -A OUTPUT -o eth0 -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT \
+$IPTABLES -A OUTPUT -o ${ETH_INTERFACE_0} -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT \
 			-m comment --comment "Allow SSH - REMOVE before ship"
 
 
 
 # outgoing SSH connection (on wifi )
-$IPTABLES -A OUTPUT -o wlan0 -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT \
+$IPTABLES -A OUTPUT -o ${WIFISTA_INTERFACE_0} -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT \
     -m comment --comment "Allow SSH - REMOVE before ship"
-$IPTABLES -A INPUT -i wlan0 -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT \
+$IPTABLES -A INPUT -i ${WIFISTA_INTERFACE_0} -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT \
     -m comment --comment "Allow SSH - REMOVE before ship"
 
-###### eth0
-$IPTABLES -A OUTPUT -o eth0 -p tcp --dport 22 -j ACCEPT \
+###### ethernet
+$IPTABLES -A OUTPUT -o ${ETH_INTERFACE_0} -p tcp --dport 22 -j ACCEPT \
     -m comment --comment "Allow SSH - REMOVE before ship"
-$IPTABLES -A INPUT -i eth0 -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT \
+$IPTABLES -A INPUT -i ${ETH_INTERFACE_0} -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT \
     -m comment --comment "Allow SSH - REMOVE before ship"
 
 

@@ -5,9 +5,9 @@
 # priority, connected network that bento uses for passing traffic.
 #
 # There are potentially three different network interfaces:
-# - ethernet (eth0 ), when supported
-# - wireless (wlan0), when supported
-# - LTE wan  (wwan0), when supported
+# - ethernet ${ETH_INTERFACE_0},     when supported
+# - wireless ${WIFISTA_INTERFACE_0}, when supported
+# - cellular ${WAN_INTERFACE_0},     when supported
 #
 # The connmgr daemon actively monitors the first two
 # interfaces (ethernet, wireless) and ping the echo server
@@ -51,32 +51,35 @@ USE_WAN=0
 
 ROUTE_TABLE=""
 
+# Get the names of the network interfaces
+. /lib/afero_get_netif_names
+
 # The script takes an input: a network interface name,
 # Check to make sure the ifname is one of the network interface that
 # we support.
 [ $# -ge 1 ] && input_name="$1"
 if [ -n "$input_name" ]; then
 
-    ifname=$input_name
-    if [ "$ifname" == "wlan0" ]; then
-		USE_WIFI=1    	
-	elif [ "$ifname" == "wwan0" ]; then
+	ifname=$input_name
+	if [ "$ifname" == "${WIFISTA_INTERFACE_0}" ]; then
+		USE_WIFI=1
+	elif [ "$ifname" == "${WAN_INTERFACE_0}" ]; then
 		USE_WAN=1
-	elif [ "$ifname" == "eth0" ]; then
+	elif [ "$ifname" == "${ETH_INTERFACE_0}" ]; then
 		USE_ETH=1
-	else 
+	else
 	   echo "Invalid ifname -$ifname"
 	   exit 1
-	fi 
+	fi
 
-else 
+else
 	echo "no ifname -$ifname"
 	exit 1
 fi
 echo "switch_to_route:dev_name=$input_name, USE_WIFI=$USE_WIFI, USE_ETH=$USE_ETH"
 
 
-# make a copy of the route talbe 
+# make a copy of the routing table
 ROUTE_TABLE=`route -n`
 
 #echo "We have a copy of the route table:  "
@@ -87,27 +90,15 @@ get_route_metric()
 {
 	local itf_name=$1
 
-	case $itf_name in 
-	# ethernet 
-	eth0 ) 
+	if [ "x${itf_name}x" = "x${ETH_INTERFACE_0}x" ] ; then
 		return $DEFAULT_ETH_ROUTE_METRIC
-	;;
-
-	# wifi 
-	wlan0 )
+	elif [ "x${itf_name}x" = "x${WIFISTA_INTERFACE_0}x" ] ; then
 		return $DEFAULT_WLAN_ROUTE_METRIC
-	;;
-
-	# LTE 
-	wwan0 )
+	elif [ "x${itf_name}x" = "x${WAN_INTERFACE_0}x" ] ; then
 		return $DEFAULT_WWAN_ROUTE_METRIC
-	;;
-
-	* ) 
-		return 0 
-	;;
-
-	esac
+	else
+		return 0
+	fi
 }
 
 #
@@ -151,18 +142,18 @@ query_gateway()
 set_wlan_metric()
 {
 
-    echo "Setting wlan0 metric to $metric..."
+    echo "Setting $WIFISTA_INTERFACE_0 metric to $metric..."
 
-    # Remove all default routes for wlan0 interface
-    local count=`route -n | grep wlan0 | awk '$1=="0.0.0.0"'{print} | wc | awk '{print $1}'`
+    # Remove all default routes for Wi-Fi STA interface
+    local count=`route -n | grep ${WIFISTA_INTERFACE_0} | awk '$1=="0.0.0.0"'{print} | wc | awk '{print $1}'`
     while [ $count -gt 0 ]; do
-        echo "route del -net default dev wlan0"
-        route del -net default dev wlan0
+        echo "route del -net default dev ${WIFISTA_INTERFACE_0}"
+        route del -net default dev ${WIFISTA_INTERFACE_0}
         count=`expr $count - 1`
     done
 
-    echo "route add -net default gw $GATEWAY dev wlan0 metric $metric"
-    route add -net default gw $GATEWAY dev wlan0 metric $metric
+    echo "route add -net default gw $GATEWAY dev ${WIFISTA_INTERFACE_0} metric $metric"
+    route add -net default gw $GATEWAY dev ${WIFISTA_INTERFACE_0} metric $metric
 
     rm /etc/resolv.conf
     if [ $metric -eq 0 ]; then
@@ -171,7 +162,7 @@ set_wlan_metric()
         ln -s /tmp/resolv.conf_wan /etc/resolv.conf
     fi
 
-    echo "Successfully set wlan0 metric to $metric!"
+    echo "Successfully set ${WIFISTA_INTERFACE_0} metric to $metric!"
     METRIC=$metric
 }
 

@@ -13,7 +13,7 @@ FWCFG="/usr/bin/fwcfg"
 # By default - the bento is standalong and it is a client to the
 # customer AP. Bento can became an extender
 #
-MASTER_WIFI_IFACE="wlan0-1"
+. /lib/afero_get_netif_names
 is_bento_ap=0
 
 
@@ -28,7 +28,7 @@ is_bento_a_wifi_ap()
 {
 	local result
 
-	result=`cat /proc/net/dev | grep -i $MASTER_WIFI_IFACE `
+	result=`cat /proc/net/dev | grep -i ${WIFIAP_INTERFACE_0} `
 	if [ -n "$result" ]; then
 		echo "create_afero_whitelist:: this bento is: master"
 		logger "create_afero_whitelist:: this bento is: master"
