@@ -10,7 +10,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 inherit autotools
 SRC_URI = "git://git@github.com/AferoCE/af-conn;protocol=ssh"
-SRCREV = "91c2f868c6f30e7356217e0c1f5919d9543693cf"
+SRCREV = "0dfe4d2efb9fb887e2b5fce8b8dbfe39d94260fb"
 
 S = "${WORKDIR}/git/pkg"
 
@@ -28,6 +28,8 @@ SRC_URI += " file://afero_whitelist.dev"
 SRC_URI += " file://afero_whitelist.prod"
 SRC_URI += " file://create_afero_whitelist.sh"
 SRC_URI += " file://afero_net_cap"
+SRC_URI += " file://afero_get_netif_names"
+SRC_URI += " file://afero_netif_names"
 
 # install the files into the destination directory so it can be packaged
 # correctly
@@ -37,6 +39,7 @@ do_install_append() {
     install -d ${D}${bindir}
     install -d ${D}${sysconfdir}
     install -d ${D}${sysconfdir}/config/
+    install -d ${D}${base_libdir}
     install -Dm 755 ${WORKDIR}/fwcfg  ${D}${bindir}
     install -Dm 755 ${WORKDIR}/switch_route_to.sh  ${D}${bindir}
     install -Dm 755 ${WORKDIR}/wancontrol  ${D}${bindir}
@@ -50,4 +53,8 @@ do_install_append() {
     install -Dm 755 ${WORKDIR}/firewall.user ${D}${sysconfdir}/config/
     install -Dm 755 ${WORKDIR}/wifi_watcher ${D}${bindir}
     install -Dm 755 ${WORKDIR}/afero_net_cap ${D}${bindir}
+    install -Dm 644 ${WORKDIR}/afero_get_netif_names ${D}${base_libdir}
+    install -Dm 644 ${WORKDIR}/afero_netif_names ${D}${base_libdir}
 }
+
+FILES_${PN} += " ${base_libdir}/afero_get_netif_names ${base_libdir}/afero_netif_names"
