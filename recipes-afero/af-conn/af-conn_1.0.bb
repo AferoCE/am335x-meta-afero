@@ -24,7 +24,6 @@ SRC_URI += " file://switch_route_to.sh"
 SRC_URI += " file://wancontrol"
 SRC_URI += " file://wannetwork"
 SRC_URI += " file://wifi_watcher"
-SRC_URI += " file://afero_whitelist.dev"
 SRC_URI += " file://afero_whitelist.prod"
 SRC_URI += " file://create_afero_whitelist.sh"
 SRC_URI += " file://afero_net_cap"
@@ -45,11 +44,7 @@ do_install_append() {
     install -Dm 755 ${WORKDIR}/switch_route_to.sh  ${D}${bindir}
     install -Dm 755 ${WORKDIR}/wancontrol  ${D}${bindir}
     install -Dm 755 ${WORKDIR}/wannetwork  ${D}${bindir}
-    if [ "x${BUILD_TYPE}x" = "xdevx" ] ; then
-        install -Dm 644 ${WORKDIR}/afero_whitelist.dev ${D}${sysconfdir}/config/afero_whitelist.txt
-    else
-        install -Dm 644 ${WORKDIR}/afero_whitelist.prod ${D}${sysconfdir}/config/afero_whitelist.txt
-    fi
+    install -Dm 644 ${WORKDIR}/afero_whitelist.prod ${D}${sysconfdir}/config/afero_whitelist.txt
     install -Dm 755 ${WORKDIR}/create_afero_whitelist.sh ${D}${sysconfdir}/config/
     install -Dm 755 ${WORKDIR}/firewall.user ${D}${sysconfdir}/config/
     install -Dm 755 ${WORKDIR}/wifi_watcher ${D}${bindir}
