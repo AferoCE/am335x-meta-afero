@@ -5,34 +5,8 @@
 # Copyright 2016 (c) Afero, Inc. All rights reserved.
 
 TTY_DEVICE=/dev/ttyACM0
-TTY_TIMEOUT=14 # 7 seconds / 0.5 seconds per iteration
+TTY_TIMEOUT=18 # 9 seconds / 0.5 seconds per iteration
 
-# I2C Address of port expander
-I2C_ADDR=0x20
-
-# 10110011 Mask to leave non-WAN GPIOs alone
-WAN_MASK=0xb3
-
-# 01000000 FET=OFF PWR_ON=OFF RESET=OFF
-WAN_FET_OFF=0x40
-
-# 00000000 FET=ON PWR_ON=OFF RESET=OFF
-WAN_FET_ON=0x00
-
-# 00001000 FET=ON PWR_ON=ON RESET=OFF
-WAN_PWR_ON_ON=0x08
-
-# 00000100 FET=ON PWR_ON=OFF RESET=ON
-WAN_RESET_ON=0x04
-
-# 00010000 Input: WAN_UP=1
-WAN_UP=0x10
-
-WANUP_TIMEOUT=4 # 2 seconds / 0.5 seconds per iteration
-ERR_NOWAN=254
-
-I2CSET=/usr/sbin/i2cset
-I2CGET=/usr/sbin/i2cget
 SLEEP=/bin/sleep
 USLEEP=/bin/usleep
 ATCMD=/usr/bin/atcmd
@@ -70,54 +44,16 @@ wait_for_no_tty()
 	return 0
 }
 
-loadusb()
-{
-	modprobe usb_common
-	modprobe usbcore
-	modprobe ehci_hcd
-	modprobe ehci_platform
-	modprobe cdc_acm
-	modprobe usbnet
-	modprobe cdc_ncm
-}
-
-unloadusb()
-{
-	rmmod cdc_ncm
-	${USLEEP} 10000
-	rmmod usbnet
-	${USLEEP} 10000
-	rmmod cdc_acm
-	${USLEEP} 10000
-	rmmod ehci_platform
-	${USLEEP} 10000
-	rmmod ehci_hcd
-	${USLEEP} 10000
-	rmmod usbcore
-	${USLEEP} 10000
-	rmmod usb_common
-}
+GPIO_PATH=/sys/class/gpio
+LTE_PWR_EN=88
+LTE_ON=86
 
 wankill()
 {
-	# make sure the FET is on
-	${I2CSET} -y 0 ${I2C_ADDR} 0 $((`${I2CGET} -y 0 ${I2C_ADDR} 0` & ${WAN_MASK} | ${WAN_FET_ON}))
-
-	# set the data direction register in case it was changed
-	${I2CSET} -y 0 ${I2C_ADDR} 1 $((`${I2CGET} -y 0 ${I2C_ADDR} 1` & ${WAN_MASK}))
-
-	# assert WAN_RESET in case the board does not have a FET
-	${I2CSET} -y 0 ${I2C_ADDR} 0 $((`${I2CGET} -y 0 ${I2C_ADDR} 0` & ${WAN_MASK} | ${WAN_RESET_ON}))
-
-	${SLEEP} 2
-
-	# deassert WAN_RESET
-	${I2CSET} -y 0 ${I2C_ADDR} 0 $((`${I2CGET} -y 0 ${I2C_ADDR} 0` & ${WAN_MASK} | ${WAN_FET_ON}))
-
-	${SLEEP} 1
-
-	# Pull the FET power
-	${I2CSET} -y 0 ${I2C_ADDR} 0 $((`${I2CGET} -y 0 ${I2C_ADDR} 0` & ${WAN_MASK} | ${WAN_FET_OFF}))
+	# shut off power to the WAN
+	[ -e ${GPIO_PATH}/gpio${LTE_PWR_EN} ] || ${ECHO} -n ${LTE_PWR_EN} > ${GPIO_PATH}/export
+	${ECHO} -n out > ${GPIO_PATH}/gpio${LTE_PWR_EN}/direction
+	${ECHO} -n 0 > ${GPIO_PATH}/gpio${LTE_PWR_EN}/value
 }
 
 wanon()
@@ -127,49 +63,32 @@ wanon()
 		return 0
 	fi
 
-	# prestore state to turn off all WAN GPIOs
-	${I2CSET} -y 0 ${I2C_ADDR} 0 $((`${I2CGET} -y 0 ${I2C_ADDR} 0` & ${WAN_MASK} | ${WAN_FET_OFF}))
+	# export GPIOs if they haven't been exported
+	[ -e ${GPIO_PATH}/gpio${LTE_PWR_EN} ] || ${ECHO} -n ${LTE_PWR_EN} > ${GPIO_PATH}/export
+	[ -e ${GPIO_PATH}/gpio${LTE_ON} ] || ${ECHO} -n ${LTE_ON} > ${GPIO_PATH}/export
 
-	# enable WAN PINS for output
-	${I2CSET} -y 0 ${I2C_ADDR} 1 $((`${I2CGET} -y 0 ${I2C_ADDR} 1` & ${WAN_MASK}))
+	${ECHO} -n out > ${GPIO_PATH}/gpio${LTE_PWR_EN}/direction
+	${ECHO} -n out > ${GPIO_PATH}/gpio${LTE_ON}/direction
 
-	# turn off all WAN GPIOs
-	${I2CSET} -y 0 ${I2C_ADDR} 0 $((`${I2CGET} -y 0 ${I2C_ADDR} 0` & ${WAN_MASK} | ${WAN_FET_OFF}))
-
-	# turn the FET on
-	${I2CSET} -y 0 ${I2C_ADDR} 0 $((`${I2CGET} -y 0 ${I2C_ADDR} 0` & ${WAN_MASK} | ${WAN_FET_ON}))
+	# ensure WAN power is off
+	${ECHO} -n 0 > ${GPIO_PATH}/gpio${LTE_PWR_EN}/value
 
 	${SLEEP} 1
 
-	# assert WAN_PWR line
-	${I2CSET} -y 0 ${I2C_ADDR} 0 $((`${I2CGET} -y 0 ${I2C_ADDR} 0` & ${WAN_MASK} | ${WAN_PWR_ON_ON}))
-	${SLEEP} 2
+	# power up the WAN with LTE_ON enabled
+	${ECHO} -n 1 > ${GPIO_PATH}/gpio${LTE_ON}/value
+	${ECHO} -n 1 > ${GPIO_PATH}/gpio${LTE_PWR_EN}/value
 
-	# deassert WAN_PWR line
-	${I2CSET} -y 0 ${I2C_ADDR} 0 $((`${I2CGET} -y 0 ${I2C_ADDR} 0` & ${WAN_MASK} | ${WAN_FET_ON}))
+	${SLEEP} 1
 
-	# Wait until WAN is up before loading USB
-	local tries=0
-	local dataReg=0
-	while true ; do
-		dataReg=$((`${I2CGET} -y 0 ${I2C_ADDR} 0` & ${WAN_UP}))
-		if [ ${dataReg} -eq 0 ] ; then
-			break;
-		fi
-		tries=$((${tries} + 1))
-		if [ ${tries} -ge ${WANUP_TIMEOUT} ] ; then
-			return ${ERR_NOWAN}
-		fi
-		${USLEEP} 500000
-	done
+	# disable LTE_ON
+	${ECHO} -n 0 > ${GPIO_PATH}/gpio${LTE_ON}/value
 
-	loadusb
 	wait_for_tty
 	local ret=$?
 	if [ ${ret} -eq 0 ] ; then
 		${SLEEP} 2
 	else
-		unloadusb
 		wankill
 	fi
 
@@ -180,19 +99,12 @@ wanoff()
 {
 	if [ -e ${TTY_DEVICE} ] ; then
 		${ATCMD} "at+cops=2"
-		${ATCMD} "at+cpwroff"
+		${ATCMD} "at+cfun=0"
 		wait_for_no_tty
-		local res=$?
-		if [ $res -ne 0 ] ; then
-			unloadusb
-			wankill
-		else
-			unloadusb
-		fi
-	else
-		unloadusb
-		wankill
 	fi
+	sleep 2
+	wankill
+	sleep 2
 }
 
 res=0

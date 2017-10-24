@@ -9,10 +9,12 @@ LIC_FILES_CHKSUM = ""
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 inherit autotools
-SRC_URI = "git://git@github.com/AferoCE/af-conn;protocol=ssh"
-SRCREV = "0dfe4d2efb9fb887e2b5fce8b8dbfe39d94260fb"
+SRC_URI = "git://git@github.com/AferoCE/af-conn;protocol=ssh;branch=wand-hotfix"
+SRCREV = "bba99e71620f2335694e1b58ec0216accbd88c6c"
 
 S = "${WORKDIR}/git/pkg"
+
+EXTRA_OECONF = "WAN_RIL=ELS61"
 
 TARGET_CFLAGS += "${@base_conditional('BUILD_TARGET','release','-DBUILD_TARGET_RELEASE','-DBUILD_TARGET_DEBUG', d)}"
 
@@ -39,6 +41,7 @@ do_install_append() {
     install -d ${D}${bindir}
     install -d ${D}${sysconfdir}
     install -d ${D}${sysconfdir}/config/
+    install -d ${D}${sysconfdir}/wan/
     install -d ${D}${base_libdir}
     install -Dm 755 ${WORKDIR}/fwcfg  ${D}${bindir}
     install -Dm 755 ${WORKDIR}/switch_route_to.sh  ${D}${bindir}
@@ -47,6 +50,7 @@ do_install_append() {
     install -Dm 644 ${WORKDIR}/afero_whitelist.prod ${D}${sysconfdir}/config/afero_whitelist.txt
     install -Dm 755 ${WORKDIR}/create_afero_whitelist.sh ${D}${sysconfdir}/config/
     install -Dm 755 ${WORKDIR}/firewall.user ${D}${sysconfdir}/config/
+    install -Dm 755 ${WORKDIR}/carriers ${D}${sysconfdir}/wan/
     install -Dm 755 ${WORKDIR}/wifi_watcher ${D}${bindir}
     install -Dm 755 ${WORKDIR}/afero_net_cap ${D}${bindir}
     install -Dm 644 ${WORKDIR}/afero_get_netif_names ${D}${base_libdir}
