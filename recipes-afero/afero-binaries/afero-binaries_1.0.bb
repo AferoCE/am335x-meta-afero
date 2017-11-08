@@ -2,14 +2,14 @@
 
 DESCRIPTION = "Afero binary files"
 SECTION = "examples"
-DEPENDS = "libevent json-c zlib openssl curl af-conn af-ipc af-util attrd otamgr"
+DEPENDS = "libevent json-c zlib openssl curl af-ipc af-util attrd otamgr"
 LICENSE = "CLOSED"
 LIC_FILES_CHKSUM = ""
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 SRC_URI = "git://git@github.com/AferoCE/am335x-binaries;protocol=ssh"
-SRCREV = "e40095b9c17f5601b4278aadbb1e805a1061a5f8"
+SRCREV = "c5211af04ff6d2eb48279941ca52fa21825e590b"
 
 S = "${WORKDIR}/git"
 
@@ -26,6 +26,11 @@ do_install() {
     ln -s libaf_edge.so.0.0.0 ${D}${libdir}/libaf_edge.so
     ln -s libaf_edge.so.0.0.0 ${D}${libdir}/libaf_edge.so.0
     install -Dm 644 ${S}/${BUILD_TARGET}${includedir}/aflib.h ${D}${includedir}
+    install -Dm 644 ${S}/${BUILD_TARGET}${libdir}/libafwp.so.0.0.0 ${D}${libdir}
+    ln -s libafwp.so.0.0.0 ${D}${libdir}/libafwp.so
+    ln -s libafwp.so.0.0.0 ${D}${libdir}/libafwp.so.0
+    install -Dm 644 ${S}/${BUILD_TARGET}${includedir}/afwp.h ${D}${includedir}
 }
 
 FILES_${PN} += " ${libdir}/libaf_edge.so ${libdir}/libaf_edge.so.0"
+FILES_${PN} += " ${libdir}/libafwp.so ${libdir}/libafwp.so.0"

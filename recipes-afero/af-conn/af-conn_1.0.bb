@@ -2,15 +2,15 @@
 
 DESCRIPTION = "Afero Connectivity"
 SECTION = "examples"
-DEPENDS = "attrd af-ipc af-util libevent libpcap openssl"
+DEPENDS = "attrd af-ipc af-util libevent libpcap openssl afero-binaries"
 LICENSE = "CLOSED"
 LIC_FILES_CHKSUM = ""
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 inherit autotools
-SRC_URI = "git://git@github.com/AferoCE/af-conn;protocol=ssh;branch=wand-hotfix"
-SRCREV = "bba99e71620f2335694e1b58ec0216accbd88c6c"
+SRC_URI = "git://git@github.com/AferoCE/af-conn;protocol=ssh"
+SRCREV = "91676cbae035fa0239290b343a8d97a52ddf96e9"
 
 S = "${WORKDIR}/git/pkg"
 
