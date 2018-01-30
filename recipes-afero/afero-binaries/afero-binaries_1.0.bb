@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = ""
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 SRC_URI = "git://git@github.com/AferoCE/am335x-binaries;protocol=ssh"
-SRCREV = "c5211af04ff6d2eb48279941ca52fa21825e590b"
+SRCREV = "9fe59032c387b2e1dd64cee56d3b773cb58c7b16"
 
 S = "${WORKDIR}/git"
 
@@ -22,6 +22,7 @@ do_install() {
     install -Dm 755 ${S}/${BUILD_TARGET}${bindir}/hubby ${D}${bindir}
     install -Dm 755 ${S}/${BUILD_TARGET}${bindir}/provision ${D}${bindir}
     install -Dm 644 ${S}/${BUILD_TARGET}${sysconfdir}/hub.profile ${D}${sysconfdir}
+    install -Dm 644 ${S}/${BUILD_TARGET}${sysconfdir}/app_ota_record.json ${D}${sysconfdir}
     install -Dm 644 ${S}/${BUILD_TARGET}${libdir}/libaf_edge.so.0.0.0 ${D}${libdir}
     ln -s libaf_edge.so.0.0.0 ${D}${libdir}/libaf_edge.so
     ln -s libaf_edge.so.0.0.0 ${D}${libdir}/libaf_edge.so.0
