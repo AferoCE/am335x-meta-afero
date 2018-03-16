@@ -1,0 +1,9 @@
+#!/bin/sh
+ATTR_SIREN_ENABLED=1
+enabled_file=/tmp/siren_enabled.tmp
+
+/bin/rm -f ${enabled_file}
+/bin/echo $$ > ${enabled_file}
+/usr/local/bin/patter${1}.sh $2
+/bin/rm -f ${enabled_file}
+/usr/bin/afedgec -s ${ATTR_SIREN_ENABLED} 0

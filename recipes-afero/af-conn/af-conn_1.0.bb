@@ -9,8 +9,8 @@ LIC_FILES_CHKSUM = ""
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 inherit autotools
-SRC_URI = "git://git@github.com/AferoCE/af-conn;protocol=ssh;branch=m6"
-SRCREV = "7b10fe0a1f5ac9c4a549c8f6fa22ed94148d78f9"
+SRC_URI = "git://git@github.com/AferoCE/af-conn;protocol=ssh"
+SRCREV = "4665ddc45c87bca1f61dc6ad94fdb92798c8bd01"
 
 S = "${WORKDIR}/git/pkg"
 
