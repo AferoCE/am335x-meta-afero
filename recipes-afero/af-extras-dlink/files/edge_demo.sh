@@ -16,12 +16,12 @@ enabled_file="/tmp/edge_enabled.tmp"
 set_inital_attr_value() {
     #Send all the values to the Afero Service
 
-    /usr/bin/afedgec -s ${ATTR_SIREN_ENABLED} -n 0 # Assume siren is off at start up
-    /usr/bin/afedgec -s ${ATTR_SIREN_PATTERN} -n ${siren_pattern}
-    /usr/bin/afedgec -s ${ATTR_SIREN_DURATION} -n ${siren_duration}
+    /usr/bin/afedgec set ${ATTR_SIREN_ENABLED} 0 # Assume siren is off at start up
+    /usr/bin/afedgec set ${ATTR_SIREN_PATTERN} ${siren_pattern}
+    /usr/bin/afedgec set ${ATTR_SIREN_DURATION} ${siren_duration}
     update_battery
-    /usr/bin/afedgec -s ${ATTR_PLAT_VER_NUM} $(head -1 /etc/FW_package_version)
-    /usr/bin/afedgec -s ${ATTR_HUB_VER_NUM} $(fw_printenv hw_ver | awk -F '=' '{print $2}')
+    /usr/bin/afedgec set ${ATTR_PLAT_VER_NUM} $(head -1 /etc/FW_package_version)
+    /usr/bin/afedgec set ${ATTR_HUB_VER_NUM} $(fw_printenv hw_ver | awk -F '=' '{print $2}')
 }
 
 #Enable Siren based on siren pattern and duration from file.
@@ -73,8 +73,8 @@ update_battery() {
         *) battery=0 ;;
     esac
     battery_charging=$(/usr/local/bin/btv_catch.sh | cut -b 1)
-    /usr/bin/afedgec -s ${ATTR_BATTERY_LEVEL} -n ${battery}
-    /usr/bin/afedgec -s ${ATTR_BATTERY_CHARGE} -n ${battery_charging}
+    /usr/bin/afedgec set ${ATTR_BATTERY_LEVEL} ${battery}
+    /usr/bin/afedgec set ${ATTR_BATTERY_CHARGE} ${battery_charging}
 }
 
 
