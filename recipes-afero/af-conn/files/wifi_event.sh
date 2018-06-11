@@ -65,6 +65,7 @@ usage()
 case `${ECHO} $1 | tr 'A-Z' 'a-z' ` in
 
     conn|connected)
+        echo 0 > /sys/kernel/debug/ieee80211/phy0/wlcore/sleep_auth
         restart_udhcpc_for_wifi;  res=$?
         ;;
 
