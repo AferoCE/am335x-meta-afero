@@ -63,7 +63,6 @@ PUSH_LOG=0
 ROTATE_HOUR=12
 
 
-[ "x`/bin/cat /proc/mounts | grep '/dev/mmcblk0p1'`x" == "xx" ] && exit 0
 
 if [ "x$1x" == "x-fx" ] ; then
     PUSH_LOG=1
@@ -82,13 +81,12 @@ sleep 5
 LOG_PREFIX=${LOG_DIR}/log
 LOG_NAME=${LOG_PREFIX}-`date +%Y%m%d%H%M%S`.gz
 
-/bin/gzip - < /var/log/messages > ${LOG_NAME}
-:> /var/log/messages
-
-if [ "$(($(date +"%H") % ${ROTATE_HOUR}))" == 0  -a $(date +"%M") -le 5 ]; then
-    systemctl restart busybox-syslog.service
+if [ "x`/bin/cat /proc/mounts | grep '/dev/mmcblk0p1'`x" != "xx" ] ; then
+    /bin/gzip - < /var/log/messages > ${LOG_NAME}
+    :> /var/log/messages
 else
-    systemctl reload busybox-syslog.service
+    :> /var/log/messages
+    exit 0
 fi
 
 if [ -f ${PIDFILE} ] ; then
