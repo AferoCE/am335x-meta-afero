@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = ""
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 SRC_URI = "git://git@github.com/AferoCE/am335x-binaries;protocol=ssh"
-SRCREV = "e7ebd8e26c7f3e5369c353986da89951dc3a4cfa"
+SRCREV = "39d6993b4b9b9e7c4e7a86371ab031e708576645"
 
 INHIBIT_DEFAULT_DEFS = "1"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
