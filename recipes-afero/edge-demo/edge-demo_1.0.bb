@@ -2,7 +2,7 @@
 
 DESCRIPTION = "Afero Edge Device Demo"
 SECTION = "examples"
-DEPENDS = "libevent af-util af-ipc afero-binaries af-conn"
+DEPENDS = "libevent af-util af-ipc afero-binaries af-conn attrd"
 LICENSE = "CLOSED"
 LIC_FILES_CHKSUM = ""
 
@@ -10,7 +10,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 inherit autotools
 SRC_URI = "git://git@github.com/AferoCE/edge-demo;protocol=ssh"
-SRCREV = "a46882a42bcfc9dee2890ae4671b37e38632e14e"
+SRCREV = "ae9067139cb4b1cd130dd3796f823394cac7d91a"
 
 S = "${WORKDIR}/git/pkg"
 

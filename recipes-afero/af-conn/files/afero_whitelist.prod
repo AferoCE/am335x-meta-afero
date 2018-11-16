@@ -17,12 +17,9 @@ conclave-stream.afero.io
 # Echo service
 echo.afero.io
 
-# Log server(s)
-squirrel.usw2prod.afero.io
-
 # OTA server(s) - obfuscated URL
 # And wildcard support for OTA regional servers
-otacdn.usw2prod.afero.io
+otacdn.afero.io
 otacdn*.afero.io
 
 # aftunnel service
