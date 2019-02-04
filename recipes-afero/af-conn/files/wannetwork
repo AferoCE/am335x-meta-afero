@@ -3,7 +3,7 @@
 ECHO=/bin/echo
 IFCONFIG=/sbin/ifconfig
 
-. /lib/afero_get_netif_names
+. /usr/lib/af-conn/get_netif_names
 
 usage()
 {

@@ -1,8 +1,8 @@
-NETIF_NAME_FILE=/lib/afero_netif_names
+NETIF_NAME_FILE=/etc/af-conn/netif_names
 if [ -e ${NETIF_NAME_FILE} ] ; then
 	. ${NETIF_NAME_FILE}
 else
-	logger "W afero_netif_names not found"
+	logger "W netif_names not found"
 	ETH_INTERFACE_0='eth0'
 	WAN_INTERFACE_0='wwan0'
 	WIFISTA_INTERFACE_0='wlan0'

@@ -17,7 +17,7 @@ UDHCPC="/sbin/udhcpc"
 NOHUP="/usr/bin/nohup"
 USLEEP=/bin/usleep
 
-. /lib/afero_get_netif_names
+. /usr/lib/af-conn/get_netif_names
 
 
 ######################

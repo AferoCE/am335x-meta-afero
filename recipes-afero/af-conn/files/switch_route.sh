@@ -52,7 +52,7 @@ USE_WAN=0
 ROUTE_TABLE=""
 
 # Get the names of the network interfaces
-. /lib/afero_get_netif_names
+. /usr/lib/af-conn/get_netif_names
 
 # The script takes an input: a network interface name,
 # Check to make sure the ifname is one of the network interface that
@@ -114,7 +114,7 @@ query_ip_addr()
     else
         IP_ADDR=""
         echo "$itf_name ip addr is not set"
-		logger "switch_route_to: Error, input_dev=$itf_name, no ip found"
+		logger "switch_route: Error, input_dev=$itf_name, no ip found"
     fi
 }
 
@@ -203,8 +203,8 @@ delete_default_route_with_metric_zero()
     for dev_name in $dev_name_list;
     do
 		if [ "$itf_name" != "$dev_name" ]; then 
-			logger "switch_route_to: dev=$dev_name, delete existing default route with metric 0"
-			echo "switch_route_to: dev=$dev_name, delete existing default route with metric 0"
+			logger "switch_route: dev=$dev_name, delete existing default route with metric 0"
+			echo "switch_route: dev=$dev_name, delete existing default route with metric 0"
 
 			route del -net default dev $dev_name metric 0
 		fi 
@@ -239,8 +239,8 @@ route_sanity_check_and_fix()
 			# At this point, we don't have the gw info. To fix it: restart the network
             # (a bit drastic, but this takes us back to the default config routes 
 			#
-			logger "switch_route_to: For dev=$dev_name, failed SANITY "
-			echo "switch_route_to: For dev=$dev_name, failed SANITY "
+			logger "switch_route: For dev=$dev_name, failed SANITY "
+			echo "switch_route: For dev=$dev_name, failed SANITY "
 
 			#echo `echo "$ROUTE_TABLE" | grep "$dev_name" |awk 'NR==1 && $1=="0.0.0.0" {print $2}'`
 			local this_gateway=`echo "$ROUTE_TABLE" | grep "$dev_name" |awk 'NR==1 && $1=="0.0.0.0" {print $2}'`
@@ -248,20 +248,20 @@ route_sanity_check_and_fix()
 			get_route_metric $dev_name
 			this_metric=$?
 
-			echo "switch_route_to:    gw=$this_gateway, metric=$this_metric"
+			echo "switch_route:    gw=$this_gateway, metric=$this_metric"
 			if [ -n "$this_gateway" ] && [ $this_metric -gt 0 ]; 
 			then
-				echo "switch_route_to:    dev=$dev_name, Add a default route with metric $this_metric"
-				logger "switch_route_to:    dev=$dev_name, Add a default route with metric $this_metric"
+				echo "switch_route:    dev=$dev_name, Add a default route with metric $this_metric"
+				logger "switch_route:    dev=$dev_name, Add a default route with metric $this_metric"
 
 				route add -net default gw $this_gateway dev $dev_name metric $this_metric	
 			else 
-				logger "switch_route_to:     dev=$dev_name, NOT ABLE TO FIX ROUTE"
-				echo "switch_route_to:    dev=$dev_name, NOT ABLE TO FIX ROUTE" 
+				logger "switch_route:     dev=$dev_name, NOT ABLE TO FIX ROUTE"
+				echo "switch_route:    dev=$dev_name, NOT ABLE TO FIX ROUTE" 
 			fi 
 		else 
-			logger "switch_route_to: For dev=$dev_name, route sanity check Ok"
-			echo "switch_route_to: For dev=$dev_name, route sanity check OK"
+			logger "switch_route: For dev=$dev_name, route sanity check Ok"
+			echo "switch_route: For dev=$dev_name, route sanity check OK"
 		fi
 	done 
 }
@@ -306,11 +306,11 @@ main()
         # properly.  This means we should not switch to WIFI 
         query_gateway $input_name
         if [ -z "$GATEWAY" ]; then
-			logger "switch_route_to: Error, dev=$input_name, NO GATEWAY FOUND"
+			logger "switch_route: Error, dev=$input_name, NO GATEWAY FOUND"
 			exit 1
         fi
 		echo "GATEWAY=$GATEWAY, USE_WIFI=$USE_WIFI, USE_ETH=$USE_ETH"
-		logger "switch_route_to:IP_ADDR=$IP_ADDR, GW=$GATEWAY, USE_WIFI=$USE_WIFI, USE_ETH=$USE_ETH"
+		logger "switch_route:IP_ADDR=$IP_ADDR, GW=$GATEWAY, USE_WIFI=$USE_WIFI, USE_ETH=$USE_ETH"
 		
 
 		# delete the default route with zero metric 

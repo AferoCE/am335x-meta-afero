@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = ""
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
 SRC_URI = "git://git@github.com/AferoCE/am335x-binaries;protocol=ssh"
-SRCREV = "9f129b2cd79dcac6c138cd0008d339d218722c15"
+SRCREV = "1eeebb94bd26b9cb2921699947d31bd784b76ef8"
 
 INHIBIT_DEFAULT_DEFS = "1"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
@@ -33,11 +33,8 @@ do_install() {
     install -Dm 644 ${S}/${BUILD_TARGET}${includedir}/aflib.h ${D}${includedir}
     install -Dm 644 ${S}/${BUILD_TARGET}${includedir}/aflib_mcu.h ${D}${includedir}
     install -Dm 644 ${S}/${BUILD_TARGET}${includedir}/af_transport.h ${D}${includedir}
-    install -Dm 644 ${S}/${BUILD_TARGET}${libdir}/libafwp.so.0.0.0 ${D}${libdir}
-    ln -s libafwp.so.0.0.0 ${D}${libdir}/libafwp.so
-    ln -s libafwp.so.0.0.0 ${D}${libdir}/libafwp.so.0
+    install -Dm 644 ${S}/${BUILD_TARGET}${libdir}/libafwp.a ${D}${libdir}
     install -Dm 644 ${S}/${BUILD_TARGET}${includedir}/afwp.h ${D}${includedir}
 }
 
 FILES_${PN} += " ${libdir}/libaf_edge.so ${libdir}/libaf_edge.so.0"
-FILES_${PN} += " ${libdir}/libafwp.so ${libdir}/libafwp.so.0"

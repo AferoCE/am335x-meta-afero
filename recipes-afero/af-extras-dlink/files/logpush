@@ -26,8 +26,8 @@ update_time() {
     local date_format="+%Y-%m-%d %H:%M:%S"
     local last_file=`$LS_CMD -ltrp $LOG_DIR/ | $GREP_CMD -v '/' | $TAIL_CMD -1 | $AWK_CMD '{ print $9 }'`
     [ "x$last_file" = "x" ] && return 0
-    local last_file_mtime=`/bin/stat $LOG_DIR/$last_file | $GREP_CMD Modify | $AWK_CMD '{ print $2 " " $3 }' | $AWK_CMD -F. '{ print $1 }'`
-    local last_file_sec=`$DATE_CMD -d "$last_file_mtime" +%s`
+    local last_file_mtime=`$DATE_CMD -r $LOG_DIR/$last_file "$date_format"`
+    local last_file_sec=`$DATE_CMD -r $LOG_DIR/$last_file +%s`
     local now_sec=`$DATE_CMD -u +%s`
     local now_time=`$DATE_CMD -u "$date_format"`
     if [ $now_sec -lt $last_file_sec ] ; then
@@ -94,7 +94,13 @@ MEDIA_UPLOAD_RESPONSE=1304
 
 update_time
 
-[ "x$1" == "x-s" ] && exit
+if [ "$#" -eq "3" ] ; then
+    if [ "$2" -eq "65012" -a "${3:0:2}" = "0a" ] ; then
+        PUSH_LOGS=1
+    fi
+elif [ "x$1" == "x-s" ] ; then
+    exit
+fi
 
 # Log memory and process stats
 
@@ -112,14 +118,14 @@ LOG_NAME=${LOG_PREFIX}-`$DATE_CMD +%Y%m%d%H%M%S`.gz
 /bin/gzip - < /var/log/messages > ${LOG_NAME}
 :> /var/log/messages
 
-if [ "$(($(date +"%H") % ${ROTATE_HOUR}))" == 0  -a $(date +"%M") -le 5 ]; then
+if [ "`$EXPR_CMD $(date +"%H") % ${ROTATE_HOUR}`" == 0 -a `$EXPR_CMD $(date +"%M")` -le 5 ]; then
     $SYSLOG_RESTART_CMD
 fi
 
 # Clean stale logs
 clean_logs
 
-if [ "x$1" == "x-f" ] ; then
+if [ "x$PUSH_LOGS" != "x" ] ; then
     # Lock out other logpush -f invocations
     set -o noclobber
     $ECHO_CMD $$ > $PID_FILE
@@ -132,7 +138,7 @@ if [ "x$1" == "x-f" ] ; then
 
     for i in `$LS_CMD ${LOG_PREFIX}*.gz` ; do
         # Prepare file for uploading
-        SHA_SUM=`/usr/bin/sha256sum $i | $AWK_CMD '{ print $1 }'`
+        SHA_SUM=`/usr/bin/openssl sha256 $i | $AWK_CMD '{ print $2 }'`
         $LOGGER_CMD notifying cloud of file to upload: $i
         # Notify media service
         ( sleep 1; $ATTRC_CMD set $MEDIA_UPLOAD_REQUEST "$MIME_TYPE,logger_syslog,$SHA_SUM" ) &
@@ -157,8 +163,8 @@ if [ "x$1" == "x-f" ] ; then
         done
 
         if [ $RES -eq 0 ] ; then
-            $LOGGER_CMD sending log file $i
-            /usr/bin/curl -tlsv1.2 --data-binary @$i $RET_URL
+            $LOGGER_CMD sending log file $i to $RET_URL
+            /usr/bin/curl -vv --cacert /etc/ssl/certs/DigiCert_Global_Root_CA.pem -tlsv1.2 --data-binary @$i $RET_URL
             RES=$?
             if [ $RES -eq 0 ] ; then
                 $RM_CMD $i

@@ -14,6 +14,7 @@ TARGET_CFLAGS += "${@base_conditional('BUILD_TARGET','release','-DBUILD_TARGET_R
 
 SRC_URI += " file://logpush"
 SRC_URI += " file://logpush.conf"
+SRC_URI += " file://logpush.attrd"
 
 S = "${WORKDIR}"
 
@@ -22,9 +23,11 @@ do_install() {
 
     install -d ${D}${bindir}
     install -d ${D}${sysconfdir}
+    install -d ${D}${sysconfdir}/af_attr.d/
 
     install -Dm 755 ${WORKDIR}/logpush ${D}${bindir}
     install -Dm 644 ${WORKDIR}/logpush.conf ${D}${sysconfdir}
+    install -Dm 644 ${WORKDIR}/logpush.attrd ${D}${sysconfdir}/af_attr.d/
 }
 
 FILES_${PN} += " ${bindir}/logpush"
