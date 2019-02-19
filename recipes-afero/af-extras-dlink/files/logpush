@@ -138,7 +138,7 @@ if [ "x$PUSH_LOGS" != "x" ] ; then
 
     for i in `$LS_CMD ${LOG_PREFIX}*.gz` ; do
         # Prepare file for uploading
-        SHA_SUM=`/usr/bin/openssl sha256 $i | $AWK_CMD '{ print $2 }'`
+        SHA_SUM=`/usr/bin/sha256sum $i | $AWK_CMD '{ print $1 }'`
         $LOGGER_CMD notifying cloud of file to upload: $i
         # Notify media service
         ( sleep 1; $ATTRC_CMD set $MEDIA_UPLOAD_REQUEST "$MIME_TYPE,logger_syslog,$SHA_SUM" ) &
